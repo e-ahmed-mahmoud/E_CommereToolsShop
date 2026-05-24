@@ -7,6 +7,7 @@ namespace Infrastructure.Data;
 public class StoreDbContext(DbContextOptions options) : IdentityDbContext<ApplicationUser>(options)
 {
     public DbSet<Product> Products { get; set; }
+    public DbSet<DeliveryMethod> DeliveryMethods { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

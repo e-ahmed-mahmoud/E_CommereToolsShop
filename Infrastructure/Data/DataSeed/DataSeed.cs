@@ -8,16 +8,29 @@ public class DataSeed
 {
     public async static Task SeedingData(StoreDbContext storeDbContext)
     {
-        if (await storeDbContext.Products.AnyAsync())
+        var hasProduct = await storeDbContext.Products.AnyAsync();
+        var hasDelivery = await storeDbContext.DeliveryMethods.AnyAsync();
+        if (hasDelivery && hasProduct)
             return;
 
-        var cureentpath = Directory.GetCurrentDirectory();
-        var data = await File.ReadAllTextAsync("../Infrastructure/Data/DataSeed/products.json");
-        if (string.IsNullOrEmpty(data))
-            return;
-        var products = JsonSerializer.Deserialize<List<Product>>(data);
+        if (!hasProduct)
+        {
+            var data = await File.ReadAllTextAsync("../Infrastructure/Data/DataSeed/products.json");
+            if (string.IsNullOrEmpty(data))
+                return;
+            var products = JsonSerializer.Deserialize<List<Product>>(data);
 
-        await storeDbContext.Products.AddRangeAsync(products!);
+            await storeDbContext.Products.AddRangeAsync(products!);
+        }
+        if (!hasDelivery)
+        {
+            var data = await File.ReadAllTextAsync("../Infrastructure/Data/DataSeed/delivery.json");
+            if (string.IsNullOrEmpty(data))
+                return;
+            var deliveries = JsonSerializer.Deserialize<List<DeliveryMethod>>(data);
+
+            await storeDbContext.DeliveryMethods.AddRangeAsync(deliveries!);
+        }
         await storeDbContext.SaveChangesAsync();
     }
 

@@ -3,12 +3,12 @@ import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { CartItem, ShopCart } from '../../shared/models/cartModel';
 import { map } from 'rxjs';
+import { CheckoutDeliveryModel } from '../../shared/models/checkout-delivery-model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CartService {
-
   baseURl = environment.ApiUrl;
 
   private httpservice = inject(HttpClient);
@@ -17,29 +17,36 @@ export class CartService {
   private keyName = 'cart_id';
 
   cartItemsCount = computed(() => {
-    return this.cart()?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;  //used as accumalation
-  })
+    return this.cart()?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0; //used as accumalation
+  });
+
+  selectedDM = signal<CheckoutDeliveryModel | undefined>(undefined);
 
   totalsPrice = computed(() => {
     const cart = this.cart();
     if (!cart) return null;
     const productsPrice = cart.items.reduce((sum, cur) => sum + cur.price * cur.quantity, 0);
-    const shippment = 10;
+    const shippment = this.selectedDM() ? this.selectedDM()?.price : 0;
     const discount = 0;
-    return { productsPrice, shippment, discount, total: productsPrice + shippment - discount };
-  })
+    return {
+      productsPrice,
+      shippment,
+      discount,
+      total: productsPrice + (shippment ?? 0) - discount,
+    };
+  });
 
   getCart(id: string) {
     return this.httpservice.get<ShopCart>(`${this.baseURl}/cart?key=${id}`).pipe(
-      map(cart => {
+      map((cart) => {
         this.cart.set(cart);
         return cart;
-      })
+      }),
     );
   }
 
   setCart(cart: ShopCart) {
-    return this.httpservice.post<ShopCart>(`${this.baseURl}/cart`, cart).subscribe(value => {
+    return this.httpservice.post<ShopCart>(`${this.baseURl}/cart`, cart).subscribe((value) => {
       this.cart.set(value);
     });
   }
@@ -52,56 +59,48 @@ export class CartService {
       this.setCart(newCart);
       return;
     }
-    const productIndex = newCart.items.findIndex(cur => cur.productId === item.productId);
+    const productIndex = newCart.items.findIndex((cur) => cur.productId === item.productId);
 
     if (productIndex > -1) {
       newCart.items[productIndex].quantity += quantity;
-    }
-    else {
+    } else {
       newCart.items.push({ ...item, quantity: quantity });
     }
     this.setCart(newCart);
   }
 
-
   removeItemFromCart(itemId: string, quantity: number = 1) {
     const cart = this.cart();
     if (!cart) return;
 
-    const productIndex = cart.items.findIndex(cur => cur.productId === itemId);
+    const productIndex = cart.items.findIndex((cur) => cur.productId === itemId);
 
     if (productIndex < 0) return;
 
     if (cart.items[productIndex].quantity > quantity) {
       cart.items[productIndex].quantity -= quantity;
-    }
-    else {
+    } else {
       cart.items.splice(productIndex, 1);
     }
 
     if (cart.items.length === 0) {
       this.deleteCart();
-    }
-    else {
+    } else {
       this.setCart(cart);
     }
   }
 
-
   deleteCart() {
     const cartId = localStorage.getItem(this.keyName);
     if (!cartId) return;
-    debugger;
     return this.httpservice.delete(`${this.baseURl}/cart?key=${cartId}`).subscribe({
       next: () => {
-        debugger;
         localStorage.removeItem(this.keyName);
         this.cart.set(undefined);
       },
-      error: err => console.log
-    })
+      error: (err) => console.log,
+    });
   }
-
 
   private createCart(): ShopCart {
     const newCart = new ShopCart();
@@ -109,4 +108,3 @@ export class CartService {
     return newCart;
   }
 }
-

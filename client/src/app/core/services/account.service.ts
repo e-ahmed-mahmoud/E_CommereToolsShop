@@ -3,13 +3,12 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Address, User } from '../../shared/models/user';
 import { environment } from '../../../environments/environment';
 import { SnackbarService } from './snackbar.service';
-import { map } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AccountService {
-
   baseURL = environment.ApiUrl;
 
   http = inject(HttpClient);
@@ -21,7 +20,7 @@ export class AccountService {
     let params = new HttpParams();
     params = params.append('useCookies', true);
 
-    return this.http.post<User>(this.baseURL + '/login', values, { params })
+    return this.http.post<User>(this.baseURL + '/login', values, { params });
   }
 
   register(values: any) {
@@ -29,19 +28,19 @@ export class AccountService {
   }
 
   getUserInfo() {
-    console.log("get user info called");
+    console.log('get user info called');
     return this.http.get<User>(this.baseURL + '/account/user-info').pipe(
       map((value: User) => {
         console.log(value);
         this.currentUser.set(value);
         console.log(this.currentUser());
         return value;
-      })
-    )
+      }),
+    );
   }
 
   isAuthenticated() {
-    return this.http.get<{ isAuthenticated: boolean }>(this.baseURL + '/account/AuthStatus')
+    return this.http.get<{ isAuthenticated: boolean }>(this.baseURL + '/account/AuthStatus');
   }
 
   logout() {
@@ -49,9 +48,13 @@ export class AccountService {
   }
 
   updateAddress(value: Address) {
-    this.http.post<Address>(this.baseURL + '/account/address', value)
+    return this.http.post<Address>(this.baseURL + '/account/address', value).pipe(
+      tap(() => {
+        this.currentUser.update((cur) => {
+          if (cur) cur.address = value;
+          return cur;
+        });
+      }),
+    );
   }
-
-
-
 }

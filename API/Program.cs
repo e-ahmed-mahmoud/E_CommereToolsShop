@@ -8,6 +8,7 @@ using Infrastructure.Data.DataSeed;
 using Infrastructure.Data.Repositories;
 using Infrastructure.Data.Services;
 using Infrastructure.Identity;
+using Infrastructure.Payment;
 using Mapster;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +40,10 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(config =>
 
 });
 builder.Services.AddSingleton<ICartService, CartService>();
+
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+builder.Services.Configure<StripPaymentOptions>(builder.Configuration.GetSection(StripPaymentOptions.SectionName));
 
 builder.Services.AddAuthorization();
 builder.Services.AddIdentityApiEndpoints<ApplicationUser>()

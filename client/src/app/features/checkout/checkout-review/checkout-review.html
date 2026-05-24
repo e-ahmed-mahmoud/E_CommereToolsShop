@@ -1,0 +1,31 @@
+<div class="w-full">
+    <h4 class="text-lg font-semibold"> Billing and Delivery information </h4>
+    <dl>
+        <dt class="font-medium">Shipping Address</dt>
+        <dd class="mt-1 text-gray-500">{{confirmationToken()?.['shipping'] | address}} </dd>
+        <dt class="font-medium">Payment detials</dt>
+        <dd class="mt-1 text-gray-500">{{confirmationToken()?.['payment_method_preview'] | payment}} </dd>
+    </dl>
+</div>
+<div class="mt-6 bg-white!">
+    <div class="border-b border-gray-50">
+        <table class="w-full text-center bg-white!">
+            <body class="divide-y divide-gray-50 bg-white!">
+                @for (item of cartServices.cart()?.items; track $index) {
+                <tr class="flex justify-between border-b border-gray-200 mx-1 my-2 py-1">
+                    <td class=" w-1/2">
+                        <div class="flex items-center py-2 gap-4">
+                            <img [src]="item.pictureUrl" alt="{{item.productName}}" class="w-20 h-20 rounded-md">
+                            <span>{{item.productName}}</span>
+                        </div>
+                    </td>
+                    <div class="flex justify-between my-2 items-center w-1/4">
+                        <td class="p-4 mx-2">x{{item.quantity}}</td>
+                        <td class="p-4 text-right">{{item.price | currency : 'SAR'}}</td>
+                    </div>
+                </tr>
+                }
+            </body>
+        </table>
+    </div>
+</div>

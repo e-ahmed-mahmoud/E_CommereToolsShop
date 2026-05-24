@@ -6,17 +6,37 @@ import { canDeactivatedGuard } from './core/guards/can-deactivated-guard';
 import { canCheckoutGuard } from './core/guards/can-checkout-guard';
 
 export const routes: Routes = [
-    { path: '', loadComponent: () => import('./features/home/home').then(c => c.Home) },
-    { path: 'shop', loadComponent: () => import('./features/shop/shop').then(c => c.Shop) },
-    { path: "shop/:id", loadComponent: () => import('./features/product-details/product-details').then(c => c.ProductDetails) },
-    { path: "cart", loadComponent: () => import('./features/cart/cart').then(c => c.Cart) },
-    {
-        path: "checkout", loadComponent: () => import('./features/checkout/checkout.component').
-            then(c => c.CheckoutComponent), canActivate: [authGuard, canCheckoutGuard]
-    },
-    { path: "account/login", loadComponent: () => import('./features/account/login/login').then(c => c.Login) },
-    { path: "account/register", loadComponent: () => import('./features/account/register/register').then(c => c.Register) },
-    { path: "not-found", component: NotFound },
-    { path: "server-error", component: ServerError },
-    { path: "**", redirectTo: "", pathMatch: "full" }
+  { path: '', loadComponent: () => import('./features/home/home').then((c) => c.Home) },
+  { path: 'shop', loadComponent: () => import('./features/shop/shop').then((c) => c.Shop) },
+  {
+    path: 'shop/:id',
+    loadComponent: () =>
+      import('./features/product-details/product-details').then((c) => c.ProductDetails),
+  },
+  { path: 'cart', loadComponent: () => import('./features/cart/cart').then((c) => c.Cart) },
+  {
+    path: 'checkout',
+    loadComponent: () =>
+      import('./features/checkout/checkout.component').then((c) => c.CheckoutComponent),
+    canActivate: [authGuard, canCheckoutGuard],
+  },
+  {
+    path: 'checkout/success',
+    loadComponent: () =>
+      import('./features/checkout/checkout-success/checkout-success').then(
+        (c) => c.CheckoutSuccess,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'account/login',
+    loadComponent: () => import('./features/account/login/login').then((c) => c.Login),
+  },
+  {
+    path: 'account/register',
+    loadComponent: () => import('./features/account/register/register').then((c) => c.Register),
+  },
+  { path: 'not-found', component: NotFound },
+  { path: 'server-error', component: ServerError },
+  { path: '**', redirectTo: '', pathMatch: 'full' },
 ];

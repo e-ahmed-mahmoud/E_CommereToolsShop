@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Core.Entities;
+using Core.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -17,9 +19,12 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
 
         builder.OwnsOne(x => x.Address, address =>
         {
+            address.ToTable("UserAddresses");
+
+            address.Property(a => a.Country).IsRequired().HasMaxLength(100);
             address.Property(a => a.City).IsRequired().HasMaxLength(100);
-            address.Property(a => a.St).IsRequired().HasMaxLength(200);
-            address.Property(a => a.ZipCode).IsRequired().HasMaxLength(50);
+            address.Property(a => a.Line1).IsRequired().HasMaxLength(200);
+            address.Property(a => a.PostalCode).IsRequired().HasMaxLength(50);
         });
 
     }

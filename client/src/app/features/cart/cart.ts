@@ -1,11 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CartService } from '../../core/services/cart.service';
-import { MatCard, MatCardHeader } from "@angular/material/card";
-import { CartItem, ShopCart } from '../../shared/models/cartModel';
-import { ShopCartItem } from "./shop-cart-item/shop-cart-item";
-import { OrderSummary } from "../../shared/shop/order-summary/order-summary";
-import { CanDeactivateFn } from '@angular/router';
-import { EmptyCard } from "../../shared/shop/empty-card/empty-card";
+import { ShopCartItem } from './shop-cart-item/shop-cart-item';
+import { OrderSummary } from '../../shared/shop/order-summary/order-summary';
+import { EmptyCard } from '../../shared/shop/empty-card/empty-card';
 
 @Component({
   selector: 'app-cart',
@@ -14,12 +11,9 @@ import { EmptyCard } from "../../shared/shop/empty-card/empty-card";
   styleUrl: './cart.css',
 })
 export class Cart implements OnInit {
-
-  cartService = inject(CartService)
-
+  cartService = inject(CartService);
 
   ngOnInit(): void {
     //this.cartItems.set(this.cartService.cart() ?? []);
-
   }
 }

@@ -1,15 +1,13 @@
-
 export interface User {
-    firstName: string,
-    lastName: string,
-    email: string,
-    Address: Address
+  firstName: string;
+  lastName: string;
+  email: string;
+  address: Address;
 }
 
 export interface Address {
-    city: string,
-    st: string,
-    zipCode: string,
-    phoneNumber: string
+  country: string;
+  city: string;
+  line1: string;
+  postalCode: string;
 }
-

@@ -7,8 +7,16 @@ public class HttpInfoLogMiddleware(ILogger<HttpInfoLogMiddleware> logger, Reques
 
     public Task InvokeAsync(HttpContext httpContext)
     {
-        _logger.LogInformation("Source {Source} path {path}", httpContext.Connection.RemoteIpAddress?.ToString(), httpContext.Request.Path);
-        return _next(httpContext);
+        try
+        {
+            _logger.LogInformation("Source {Source} path {path}", httpContext.Connection.RemoteIpAddress?.ToString(), httpContext.Request.Path);
+            return _next(httpContext);
+        }
+        catch (System.Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            return _next(httpContext);
+        }
     }
 }
 
