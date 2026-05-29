@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Core.Entities;
 using Core.Interfaces;
 using Core.Specifications;
@@ -13,13 +9,13 @@ public class GenericRepository<T>(StoreDbContext dbContext) : IGenericRepository
 {
     private readonly StoreDbContext _dbContext = dbContext;
 
-    public async Task<IReadOnlyList<T>> GetAllAsync()
+    public async Task<IReadOnlyList<T>> GetAllAsync(CancellationToken cancellationToken)
     {
-        return await _dbContext.Set<T>().AsNoTracking().ToListAsync();
+        return await _dbContext.Set<T>().AsNoTracking().ToListAsync(cancellationToken);
     }
-    public async Task<T?> GetByIdAsync(Guid id)
+    public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        return await _dbContext.Set<T>().FindAsync(id);
+        return await _dbContext.Set<T>().FindAsync(id, cancellationToken);
     }
     public void Add(T entity)
     {
@@ -38,37 +34,35 @@ public class GenericRepository<T>(StoreDbContext dbContext) : IGenericRepository
     {
         return _dbContext.Set<T>().Any(e => e.Id == id);
     }
-
-    public async Task<bool> SaveChangesAsync()
+    public async Task<IReadOnlyList<T>> GetAllAsync(ISpecification<T> spec, CancellationToken cancellationToken)
     {
-        return await _dbContext.SaveChangesAsync() > 1;
+        return await ApplySpecification(spec).ToListAsync(cancellationToken);
+    }
+    public async Task<T?> GetByIdAsync(ISpecification<T> spec, CancellationToken cancellationToken)
+    {
+        return await ApplySpecification(spec).FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<T>> GetAllAsync(ISpecification<T> spec)
-    {
-        return await ApplySpecification(spec).ToListAsync();
-    }
-    public async Task<T?> GetByIdAsync(Guid id, ISpecification<T> spec)
-    {
-        return await ApplySpecification(spec).FirstOrDefaultAsync();
-    }
+    public async Task<IReadOnlyList<TResult>> GetAllAsync<TResult>(ISpecification<T, TResult> specification, CancellationToken cancellationToken) =>
+        await ApplySpecification<TResult>(specification).ToListAsync(cancellationToken);
 
-    public async Task<IReadOnlyList<TResult>> GetAllAsync<TResult>(ISpecification<T, TResult> specification) =>
-        await ApplySpecification<TResult>(specification).ToListAsync();
-
-    public async Task<TResult?> GetByIdAsync<TResult>(Guid id, ISpecification<T, TResult> specification) =>
-            await ApplySpecification<TResult>(specification).FirstOrDefaultAsync();
+    public async Task<TResult?> GetByIdAsync<TResult>(Guid id, ISpecification<T, TResult> specification, CancellationToken cancellationToken) =>
+            await ApplySpecification<TResult>(specification).FirstOrDefaultAsync(cancellationToken);
     private IQueryable<T> ApplySpecification(ISpecification<T> spec) =>
                     SpecificationEvaluator<T>.GetQuery(_dbContext.Set<T>().AsQueryable<T>(), spec);
     private IQueryable<TResult> ApplySpecification<TResult>(ISpecification<T, TResult> spec) =>
                     SpecificationEvaluator<T>.GetQuery<T, TResult>(_dbContext.Set<T>().AsQueryable<T>(), spec);
 
-    public async Task<int> CountAsync(ISpecification<T> specification)
+    public async Task<int> CountAsync(ISpecification<T> specification, CancellationToken cancellationToken)
     {
         var query = _dbContext.Set<T>().AsQueryable();
         query = specification.ApplyCriteria(query);
-        return await query.CountAsync();
+        return await query.CountAsync(cancellationToken);
 
     }
 
+    // public Task<TResult?> GetByIdAsync<TResult>(ISpecification<T, TResult> specification, CancellationToken cancellationToken)
+    // {
+    //     throw new NotImplementedException();
+    // }
 }

@@ -1,4 +1,3 @@
-using System.Reflection;
 using API.Middleware;
 using Core.Entities;
 using Core.Interfaces;
@@ -31,6 +30,7 @@ builder.Services.AddDbContext<StoreDbContext>(options =>
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddSingleton<IConnectionMultiplexer>(config =>
 {
     var connectinString = builder.Configuration.GetConnectionString("Redis")
@@ -52,6 +52,7 @@ builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 //mapster config
 var config = TypeAdapterConfig.GlobalSettings;

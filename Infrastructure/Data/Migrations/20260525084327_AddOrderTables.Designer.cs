@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Data.Migrations
 {
     [DbContext(typeof(StoreDbContext))]
-    partial class StoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260525084327_AddOrderTables")]
+    partial class AddOrderTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -409,10 +412,10 @@ namespace Infrastructure.Data.Migrations
                             b1.Property<int>("ExpMonth")
                                 .HasColumnType("int");
 
-                            b1.Property<int>("ExpYear")
+                            b1.Property<int>("Last4")
                                 .HasColumnType("int");
 
-                            b1.Property<int>("Last4")
+                            b1.Property<int>("Year")
                                 .HasColumnType("int");
 
                             b1.HasKey("OrderId");

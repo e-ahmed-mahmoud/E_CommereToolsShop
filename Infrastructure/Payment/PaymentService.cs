@@ -1,26 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Core.Common.Result;
 using Core.Entities;
 using Core.Errors;
 using Core.Interfaces;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Options;
 using Stripe;
 
 namespace Infrastructure.Payment;
 
-public class PaymentService(IOptions<StripPaymentOptions> options, IGenericRepository<Core.Entities.Product> productRepo,
-        IGenericRepository<DeliveryMethod> dmRepo, ICartService cartService) : IPaymentService
+public class PaymentService(IOptions<StripPaymentOptions> options, IUnitOfWork unitOfWork, ICartService cartService) : IPaymentService
 {
     private readonly StripPaymentOptions _options = options.Value;
-    private readonly IGenericRepository<Core.Entities.Product> _productRepo = productRepo;
-    private readonly IGenericRepository<DeliveryMethod> _dmRepo = dmRepo;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly ICartService _cartService = cartService;
 
-    public async Task<Result<ShoppingCart>> CreateOrUpdatePaymentPayloadAsync(string cardId)
+    public async Task<Result<ShoppingCart>> CreateOrUpdatePaymentPayloadAsync(string cardId, CancellationToken cancellationToken)
     {
         StripeConfiguration.ApiKey = _options.SecretKey;
 
@@ -32,7 +25,7 @@ public class PaymentService(IOptions<StripPaymentOptions> options, IGenericRepos
 
         if (cart.DeliveryMethodId.HasValue)
         {
-            var deliveryMethod = await _dmRepo.GetByIdAsync(cart.DeliveryMethodId.Value);
+            var deliveryMethod = await _unitOfWork.Repository<DeliveryMethod>().GetByIdAsync(cart.DeliveryMethodId.Value, cancellationToken);
 
             if (deliveryMethod is null) return Result.Failure<ShoppingCart>(PaymentErrors.InValidPayment);
 
@@ -41,7 +34,7 @@ public class PaymentService(IOptions<StripPaymentOptions> options, IGenericRepos
 
         foreach (var item in cart.Items)
         {
-            var product = await _productRepo.GetByIdAsync(item.ProductId);
+            var product = await _unitOfWork.Repository<Core.Entities.Product>().GetByIdAsync(item.ProductId, cancellationToken);
 
             if (product is null) return Result.Failure<ShoppingCart>(PaymentErrors.InValidPayment);
 

@@ -1,5 +1,6 @@
 using Core.Entities;
 using Core.Specifications;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data;
 
@@ -21,6 +22,9 @@ public class SpecificationEvaluator<T> where T : BaseEntity
 
         if (spec.IsPaginationEnabled)
             query = query.Skip(spec.Skip).Take(spec.Take);
+
+        query = spec.Includs.Aggregate(query, (current, include) => current.Include(include));
+        query = spec.IncludsStrings.Aggregate(query, (current, include) => current.Include(include));
 
         return query;
     }

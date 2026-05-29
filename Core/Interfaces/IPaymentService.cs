@@ -5,5 +5,5 @@ namespace Core.Interfaces;
 
 public interface IPaymentService
 {
-    Task<Result<ShoppingCart>> CreateOrUpdatePaymentPayloadAsync(string cardId);
+    Task<Result<ShoppingCart>> CreateOrUpdatePaymentPayloadAsync(string cardId, CancellationToken cancellationToken);
 }
