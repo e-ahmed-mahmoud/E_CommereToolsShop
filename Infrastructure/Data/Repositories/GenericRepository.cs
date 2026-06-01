@@ -42,6 +42,10 @@ public class GenericRepository<T>(StoreDbContext dbContext) : IGenericRepository
     {
         return await ApplySpecification(spec).FirstOrDefaultAsync(cancellationToken);
     }
+    public async Task<T?> GetEntityBySpecificationAsync(ISpecification<T> spec, CancellationToken cancellationToken)
+    {
+        return await ApplySpecification(spec).FirstOrDefaultAsync(cancellationToken);
+    }
 
     public async Task<IReadOnlyList<TResult>> GetAllAsync<TResult>(ISpecification<T, TResult> specification, CancellationToken cancellationToken) =>
         await ApplySpecification<TResult>(specification).ToListAsync(cancellationToken);

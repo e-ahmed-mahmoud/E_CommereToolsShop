@@ -9,8 +9,8 @@ public interface IOrderService
 {
     Task<Result<Guid>> CreateOrder(CreateOrderRequest createOrder, string bayerEmail, CancellationToken cancellationToken);
 
-    Task<Result<OrderCreateResponse>> GetOrdersById(ISpecification<Order> specification, CancellationToken cancellationToken);
+    Task<Result<CreateOrderResponse>> GetOrdersById(ISpecification<Order> specification, CancellationToken cancellationToken);
 
-    Task<Result<List<OrderCreateResponse>>> GetUserOrders(ISpecification<Order> specification, CancellationToken cancellationToken);
+    Task<Result<List<CreateOrderResponse>>> GetUserOrders(ISpecification<Order> specification, CancellationToken cancellationToken);
 
 }

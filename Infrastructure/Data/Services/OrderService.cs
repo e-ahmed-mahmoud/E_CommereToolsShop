@@ -77,38 +77,17 @@ public class OrderService(IUnitOfWork unitOfWork, ICartService cartService) : IO
 
     }
 
-    public async Task<Result<OrderCreateResponse>> GetOrdersById(ISpecification<Order> specification, CancellationToken cancellationToken)
+    public async Task<Result<CreateOrderResponse>> GetOrdersById(ISpecification<Order> specification, CancellationToken cancellationToken)
     {
         var res = await _unitOfWork.Repository<Order>().GetByIdAsync(specification, cancellationToken);
 
-        return res is null ? Result.Failure<OrderCreateResponse>(OrderErrors.CartNotDefined) : Result.Success(res.Adapt<OrderCreateResponse>());
+        return res is null ? Result.Failure<CreateOrderResponse>(OrderErrors.CartNotDefined) : Result.Success((CreateOrderResponse)res);
     }
-    public async Task<Result<List<OrderCreateResponse>>> GetUserOrders(ISpecification<Order> specification, CancellationToken cancellationToken)
+    public async Task<Result<List<CreateOrderResponse>>> GetUserOrders(ISpecification<Order> specification, CancellationToken cancellationToken)
     {
         var res = await _unitOfWork.Repository<Order>().GetAllAsync(specification, cancellationToken);
-        var data = new List<OrderCreateResponse>();
 
-        foreach (var item in res)
-        {
-            data.Add(new OrderCreateResponse()
-            {
-                OrderId = item.Id,
-                OrderDate = item.OrderDate,
-                BayerEmail = item.BayerEmail,
-                ShippingAddress = item.ShippingAddress,
-                DeliveryMethod = string.Concat(item.DeliveryMethod.ShortName, " | ", item.DeliveryMethod.Description),
-                PaymentSummary = item.PaymentSummary,
-                OrderItems = [.. item.OrderItems.Select( p => new OrderItemDto (){ PictureUrl = p.ItemOrdered.PictureUrl ,
-                ProductId = p.ItemOrdered.ProdcutId, ProductName = p.ItemOrdered.ProdcutName, Price = p.Price, Quantity = p.Quantity })],
-                SubTotal = item.SubTotal,
-                OrderStatus = item.OrderStatus.ToString(),
-                PaymentIntentId = item.PaymentIntentId,
-                ShippingPrice = item.DeliveryMethod.Price,
-                Total = item.GetTotal()
-            });
-        }
-
-        return res is null ? Result.Failure<List<OrderCreateResponse>>(OrderErrors.CartNotDefined)
-            : Result.Success(data);
+        return res is null ? Result.Failure<List<CreateOrderResponse>>(OrderErrors.CartNotDefined)
+            : Result.Success(res.Select(r => (CreateOrderResponse)r).ToList());
     }
 }

@@ -8,6 +8,7 @@ public interface IGenericRepository<T> where T : BaseEntity
     Task<IReadOnlyList<T>> GetAllAsync(CancellationToken cancellationToken);
     Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     Task<IReadOnlyList<T>> GetAllAsync(ISpecification<T> specification, CancellationToken cancellationToken);
+    Task<T?> GetEntityBySpecificationAsync(ISpecification<T> spec, CancellationToken cancellationToken);
     Task<T?> GetByIdAsync(ISpecification<T> specification, CancellationToken cancellationToken);
     Task<IReadOnlyList<TResult>> GetAllAsync<TResult>(ISpecification<T, TResult> specification, CancellationToken cancellationToken);
     //Task<TResult?> GetByIdAsync<TResult>(ISpecification<T, TResult> specification, CancellationToken cancellationToken);

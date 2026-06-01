@@ -129,7 +129,6 @@ export class StripService {
       const elements = await this.initializeElements();
       if (elements) {
         this.paymentElement = elements.create('payment');
-        console.log(this.paymentElement);
       } else {
         throw new Error('Error in creating Strip elements');
       }

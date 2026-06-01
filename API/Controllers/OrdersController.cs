@@ -28,13 +28,13 @@ public class OrdersController(IOrderService orderService) : BaseApiController
         {
             var spec = new OrderSpecification(email, res.Value);
             var order = await _orderService.GetOrdersById(spec, cancellationToken);
-            return CreatedAtAction("GetOrder", new { res.Value }, order);
+            return CreatedAtAction("GetUserOrder", new { order.Value.OrderId }, order);
         }
         return res.ToProblem(400);
     }
 
     [HttpGet]
-    public async Task<ActionResult<Result<OrderCreateResponse>>> GetUserOrder(CancellationToken cancellationToken)
+    public async Task<ActionResult<Result<CreateOrderResponse>>> GetUserOrder(CancellationToken cancellationToken)
     {
         var specification = new OrderSpecification(User.GetUserEmail());
 
@@ -44,7 +44,7 @@ public class OrdersController(IOrderService orderService) : BaseApiController
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Result<OrderCreateResponse>>> GetUserOrder(Guid id, CancellationToken cancellationToken)
+    public async Task<ActionResult<Result<CreateOrderResponse>>> GetUserOrder(Guid id, CancellationToken cancellationToken)
     {
         var specification = new OrderSpecification(User.GetUserEmail(), id);
 

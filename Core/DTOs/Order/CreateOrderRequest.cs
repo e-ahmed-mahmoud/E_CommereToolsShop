@@ -14,4 +14,5 @@ public class CreateOrderRequest
     public PaymentSummary PaymentSummary { get; set; } = default!;
     [Required]
     public Guid DeliveryMethodId { get; set; }
+
 }

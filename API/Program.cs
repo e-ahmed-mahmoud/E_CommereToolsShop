@@ -1,4 +1,5 @@
 using API.Middleware;
+using API.SignalR;
 using Core.Entities;
 using Core.Interfaces;
 using Infrastructure;
@@ -54,6 +55,8 @@ builder.Services.AddOpenApi();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
+builder.Services.AddSignalR();
+
 //mapster config
 var config = TypeAdapterConfig.GlobalSettings;
 config.Scan(typeof(IAssemblyMarker).Assembly);
@@ -64,6 +67,9 @@ var app = builder.Build();
 app.UseExceptionHandler();
 
 app.UseCors("DefaultPolicy");
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -79,6 +85,7 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapGroup("api").MapIdentityApi<ApplicationUser>();
 
+app.MapHub<NotificationHub>("/hub/notifications");
 
 try
 {

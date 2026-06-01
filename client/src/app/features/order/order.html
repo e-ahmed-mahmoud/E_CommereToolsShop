@@ -1,0 +1,35 @@
+
+<section class="mt-16 mx-auto bg-white">
+    <div>
+        <h3 class="flex justify-center mb-5 text-2xl text-center font-semibold">My Orders</h3>
+    </div>
+
+    <div class="mt-4 flex flex-col">
+        <div class="w-full">
+            <table class="min-w-full divide-y divide-gray-200 cursor-pointer">
+                <thead class="border border-b-2 border-b-gray-500 text-center">
+                    <tr class="uppercase text-gray-600 text-sm">
+                        <th class="text-center px-6 py-3">Order Ref</th>
+                        <th class="text-left">Date</th>
+                        <th class="text-left">Total</th>
+                        <th class="text-left">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    @for (item of orders(); track item.orderId; let i = $index) {
+                        <tr routerLink="/orders/{{item.orderId}}" class="hover:bg-gray-100">
+                            <td class="text-center px-6 py-3" >{{i+1}}</td>
+                            <td>{{item.orderDate | date : 'medium'}}</td>
+                            <td>{{item.subTotal | currency}}</td>
+                            <td>{{item.orderStatus}}</td>
+                        </tr>
+                    }
+                    <tr></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</section>
+
+

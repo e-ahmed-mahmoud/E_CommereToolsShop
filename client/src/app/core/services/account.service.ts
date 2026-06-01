@@ -3,7 +3,8 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Address, User } from '../../shared/models/user';
 import { environment } from '../../../environments/environment';
 import { SnackbarService } from './snackbar.service';
-import { map, Observable, tap } from 'rxjs';
+import { map, tap } from 'rxjs';
+import { SignalRService } from './signalr.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,7 @@ export class AccountService {
 
   http = inject(HttpClient);
   snackbarservice = inject(SnackbarService);
+  signalrService = inject(SignalRService);
 
   currentUser = signal<User | null>(null);
 
@@ -20,7 +22,9 @@ export class AccountService {
     let params = new HttpParams();
     params = params.append('useCookies', true);
 
-    return this.http.post<User>(this.baseURL + '/login', values, { params });
+    return this.http
+      .post<User>(this.baseURL + '/login', values, { params })
+      .pipe(tap(() => this.signalrService.createHubConnection()));
   }
 
   register(values: any) {
@@ -28,12 +32,9 @@ export class AccountService {
   }
 
   getUserInfo() {
-    console.log('get user info called');
     return this.http.get<User>(this.baseURL + '/account/user-info').pipe(
       map((value: User) => {
-        console.log(value);
         this.currentUser.set(value);
-        console.log(this.currentUser());
         return value;
       }),
     );
@@ -44,7 +45,9 @@ export class AccountService {
   }
 
   logout() {
-    return this.http.get(this.baseURL + '/account/logout');
+    return this.http
+      .get(this.baseURL + '/account/logout')
+      .pipe(tap(() => this.signalrService.stopHubConnection()));
   }
 
   updateAddress(value: Address) {

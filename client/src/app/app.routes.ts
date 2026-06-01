@@ -2,8 +2,8 @@ import { Routes } from '@angular/router';
 import { NotFound } from './shared/not-found/not-found';
 import { ServerError } from './shared/server-error/server-error';
 import { authGuard } from './core/guards/auth.guard';
-import { canDeactivatedGuard } from './core/guards/can-deactivated-guard';
 import { canCheckoutGuard } from './core/guards/can-checkout-guard';
+import { orderCompleteGuard } from './guards/order-complete-guard';
 
 export const routes: Routes = [
   { path: '', loadComponent: () => import('./features/home/home').then((c) => c.Home) },
@@ -26,6 +26,17 @@ export const routes: Routes = [
       import('./features/checkout/checkout-success/checkout-success').then(
         (c) => c.CheckoutSuccess,
       ),
+    canActivate: [authGuard, orderCompleteGuard],
+  },
+  {
+    path: 'orders',
+    loadComponent: () => import('./features/order/order').then((c) => c.Order),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'orders/:id',
+    loadComponent: () =>
+      import('./features/order/order-detials/order-detials').then((c) => c.OrderDetials),
     canActivate: [authGuard],
   },
   {

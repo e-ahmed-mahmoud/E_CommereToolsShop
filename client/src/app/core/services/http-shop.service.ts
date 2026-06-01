@@ -8,7 +8,6 @@ import { environment } from '../../../environments/environment';
 @Injectable({
   providedIn: 'root',
 })
-
 export class HttpShopService {
   baseURL = environment.ApiUrl;
 
@@ -36,8 +35,6 @@ export class HttpShopService {
     params = params.append('pageSize', queryParams.pageSize);
     params = params.append('pageNumber', queryParams.pageNumber);
 
-    console.log({ params });
-
     return this.httpService.get<Pagination<Product[]>>(`${this.baseURL}/products`, { params });
   }
 
@@ -46,22 +43,18 @@ export class HttpShopService {
   }
 
   getBrands() {
-    if (this.brands().length > 0)
-      return;
+    if (this.brands().length > 0) return;
     this.httpService.get<string[]>(`${this.baseURL}/products/getBrands`).subscribe({
-      next: resposne => this.brands.set(resposne),
-      error: err => console.log
-    })
+      next: (resposne) => this.brands.set(resposne),
+      error: (err) => console.log,
+    });
   }
 
   getTypes() {
-    if (this.types().length > 0)
-      return;
+    if (this.types().length > 0) return;
     this.httpService.get<string[]>(`${this.baseURL}/products/getTypes`).subscribe({
-      next: resposne => this.types.set(resposne),
-      error: err => console.log
-    })
+      next: (resposne) => this.types.set(resposne),
+      error: (err) => console.log,
+    });
   }
-
-
 }

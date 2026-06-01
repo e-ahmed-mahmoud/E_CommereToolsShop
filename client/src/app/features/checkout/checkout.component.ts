@@ -16,16 +16,14 @@ import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
 import { Address } from '../../shared/models/user';
 import { AccountService } from '../../core/services/account.service';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { DeliveryMethod } from './delivery-method/delivery-method';
 import { CheckoutReview } from './checkout-review/checkout-review';
 import { CartService } from '../../core/services/cart.service';
-import { CurrencyPipe, JsonPipe } from '@angular/common';
-import {
-  MatProgressSpinner,
-  MatProgressSpinnerModule,
-  MatSpinner,
-} from '@angular/material/progress-spinner';
+import { CurrencyPipe } from '@angular/common';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CreateOrder, ShippingAddress } from '../../shared/models/order-model';
+import { OrderService } from '../../core/services/order.service';
 
 @Component({
   selector: 'app-checkout.component',
@@ -53,6 +51,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   accountService = inject(AccountService);
   cartServices = inject(CartService);
   router = inject(Router);
+  orderSerivce = inject(OrderService);
 
   addressElement?: StripeAddressElement;
   paymentElement?: StripePaymentElement;
@@ -104,12 +103,21 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       const token = this.confirmationToken();
       if (token) {
         const confirm = await this.stripService.confirmPayment(token);
-        if (confirm.error) {
+        if (confirm.paymentIntent?.status === 'succeeded') {
+          const order = await this.createOrderModel();
+          const res = await firstValueFrom(this.orderSerivce.createOrder(order));
+          if (res) {
+            this.cartServices.deleteCart();
+            this.cartServices.selectedDM.set(undefined);
+            this.orderSerivce.orderComplete.set(true);
+            this.router.navigateByUrl('checkout/success');
+          } else {
+            throw new Error('Order failed to created');
+          }
+        } else if (confirm.error) {
           throw new Error(confirm.error.message);
         } else {
-          this.cartServices.deleteCart();
-          this.cartServices.selectedDM.set(undefined);
-          this.router.navigateByUrl('checkout/success');
+          throw new Error('Error in processing payment with Strip');
         }
       }
     } catch (error: any) {
@@ -119,6 +127,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   async onStepperIndexChange($event: StepperSelectionEvent) {
+    console.log($event.selectedIndex);
     if ($event.selectedIndex === 1) {
       const address = await this.getStripAddress();
       if (this.isDefaultAddressChecked()) {
@@ -126,12 +135,10 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       }
     }
     if ($event.selectedIndex === 2) {
-      const address = await this.getStripAddress();
-      address && (await firstValueFrom(this.accountService.updateAddress(address)));
+      await firstValueFrom(this.stripService.createOrUpdatePaymentIntent());
     }
     if ($event.selectedIndex === 3) {
       var token = await this.getConfirmationToken();
-      console.log(token);
     }
   }
 
@@ -151,10 +158,11 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     this.completionStatus.update((cur) => ({ ...cur, paymentMethodComp: event.complete }));
   };
 
-  private async getStripAddress(): Promise<Address | null> {
+  private async getStripAddress(): Promise<Address | ShippingAddress | null> {
     const stripeAddress = await this.addressElement?.getValue();
     if (stripeAddress?.value.address) {
       return {
+        name: stripeAddress.value.name,
         line1: stripeAddress?.value.address.line1,
         country: stripeAddress?.value.address.country,
         city: stripeAddress?.value.address.city,
@@ -163,6 +171,26 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     } else {
       return null;
     }
+  }
+
+  private async createOrderModel(): Promise<CreateOrder> {
+    const cart = this.cartServices.cart();
+    const shippingAddress = (await this.getStripAddress()) as ShippingAddress;
+    const pyamentCard = this.confirmationToken()?.payment_method_preview.card;
+    if (!cart?.id || !shippingAddress || !pyamentCard || !cart.deliveryMethodId) {
+      throw new Error('invalid shopping cart');
+    }
+    return {
+      cartid: cart.id,
+      deliveryMethodId: cart.deliveryMethodId,
+      shippingAddress: shippingAddress,
+      paymentSummary: {
+        brand: pyamentCard.brand,
+        last4: +pyamentCard.last4,
+        expMonth: pyamentCard.exp_month,
+        expYear: pyamentCard.exp_year,
+      },
+    };
   }
 
   ngOnDestroy() {
