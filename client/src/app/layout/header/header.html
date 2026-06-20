@@ -3,12 +3,14 @@
         <div class="flex items-center justify-between">
             <button (click)="isMenuOpen = !isMenuOpen" class="sm:hidden p-2 text-gray-600">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7">
+                    </path>
                 </svg>
             </button>
 
             <a routerLink="/">
-                <img src="/images/shopLogo.png" alt="app logo" class="max-h-12 sm:max-h-17 scale-150 sm:scale-185 object-contain">
+                <img src="/images/shopLogo.png" alt="app logo"
+                    class="max-h-12 sm:max-h-17 scale-150 sm:scale-185 object-contain">
             </a>
 
             <nav class="hidden sm:flex gap-1 sm:gap-3 sm:uppercase sm:text-xl sm:text-textBlueColor">
@@ -18,32 +20,35 @@
             </nav>
 
             <div class="flex gap-3 items-center">
-                <a routerLink="/cart" matBadge="{{cartService.cartItemsCount()}}" matBadgeSize="large" class="mt-2 mr-2">
+                <a routerLink="/cart" matBadge="{{cartService.cartItemsCount()}}" matBadgeSize="large"
+                    class="mt-2 mr-2">
                     <mat-icon>shopping_cart</mat-icon>
                 </a>
                 @if (accountService.currentUser()) {
-                    <button mat-button [mat-menu-trigger-for]="menu" class="hidden sm:flex">
-                        <mat-icon>account_circle</mat-icon>
-                        {{accountService.currentUser()?.email}}
-                        <mat-icon>arrow_drop_down</mat-icon>
-                    </button>
+                <button mat-button [mat-menu-trigger-for]="menu" class="hidden sm:flex">
+                    <mat-icon>account_circle</mat-icon>
+                    {{accountService.currentUser()?.email}}
+                    <mat-icon>arrow_drop_down</mat-icon>
+                </button>
                 } @else {
-                    <div class="hidden sm:flex gap-2">
-                        <button mat-stroked-button routerLink="/account/login">Login</button>
-                        <button mat-stroked-button routerLink="/account/register">Register</button>
-                    </div>
+                <div class="hidden sm:flex gap-2">
+                    <button mat-stroked-button routerLink="/account/login">Login</button>
+                    <button mat-stroked-button routerLink="/account/register">Register</button>
+                </div>
                 }
             </div>
         </div>
 
-        <nav [class.hidden]="!isMenuOpen" class="sm:hidden flex flex-col mt-3 border-t pt-2 gap-2 text-sm uppercase text-textBlueColor">
-            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="isMenuOpen = false">Home</a>
+        <nav [class.hidden]="!isMenuOpen"
+            class="sm:hidden flex flex-col mt-3 border-t pt-2 gap-2 text-sm uppercase text-textBlueColor">
+            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+                (click)="isMenuOpen = false">Home</a>
             <a routerLink="/shop" routerLinkActive="active" (click)="isMenuOpen = false">Shop</a>
             <a routerLink="/contactUs" routerLinkActive="active" (click)="isMenuOpen = false">Contact</a>
             @if (!accountService.currentUser()) {
-                <hr class="my-2">
-                <a routerLink="/account/login" (click)="isMenuOpen = false">Login</a>
-                <a routerLink="/account/register" (click)="isMenuOpen = false">Register</a>
+            <hr class="my-2">
+            <a routerLink="/account/login" (click)="isMenuOpen = false">Login</a>
+            <a routerLink="/account/register" (click)="isMenuOpen = false">Register</a>
             }
         </nav>
     </div>
@@ -55,6 +60,12 @@
 }
 
 <mat-menu #menu="matMenu" class="px-5">
+    @if(accountService.userRoles()?.includes('Admin') ) {
+        <button mat-menu-item routerLink="/addProduct" class="px-4 text-center">
+            <mat-icon>add</mat-icon> AddProduct
+        </button>
+    }
+
     <button mat-menu-item class="px-4" routerLink="/cart">
         <mat-icon>shopping_cart</mat-icon> MyCart
     </button>

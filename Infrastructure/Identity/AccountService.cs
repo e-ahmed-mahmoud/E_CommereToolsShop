@@ -32,12 +32,23 @@ public class AccountService(UserManager<ApplicationUser> userManager) : IAccount
     public async Task<Result<UserInfoResponse>> GetUserInfo(string email)
     {
         var user = await _userManager.FindByEmailAsync(email);
-
         if (user is null)
             return Result.Failure<UserInfoResponse>(UserErrors.NotDefinedUser);
 
         return Result.Success(user.Adapt<UserInfoResponse>());
     }
+
+    public async Task<List<string>> GetUserRolesAsync(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user is null)
+            return [];
+
+        var roles = (await _userManager.GetRolesAsync(user)).ToList<string>();
+        return roles;
+    }
+
 
     public async Task<Result<AddressDto>> CreateOrUpdateAddress(string email, AddressDto address)
     {

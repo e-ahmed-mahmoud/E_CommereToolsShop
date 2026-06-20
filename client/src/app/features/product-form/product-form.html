@@ -1,0 +1,75 @@
+<div class="max-w-full flex justify-around bg-white my-4 mt-9">
+    <form [formGroup]="productform" (ngSubmit)="submitForm()" class="w-full max-w-4xl flex flex-col p-4">
+        
+        <div class="text-center my-5 font-medium text-2xl text-textBlueColor">
+            Add Product
+        </div>
+        
+        <div class="flex flex-col w-full gap-4">
+            
+            <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Product Name</mat-label>
+                <input matInput formControlName="name" placeholder="Insert product name" name="name"/>
+                @if (productform.get('name')?.hasError('required')) {
+                    <mat-error>Product Name is required</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Product Description</mat-label>
+                <textarea matInput rows="4" formControlName="description" placeholder="Insert description"></textarea>
+                @if (productform.get('description')?.hasError('required')) {
+                    <mat-error>Product description is required</mat-error>
+                }
+            </mat-form-field>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Type</mat-label>
+                    <input matInput formControlName="type" placeholder="Type" />
+                    @if (productform.get('type')?.hasError('required')) {
+                        <mat-error>Type is required</mat-error>
+                    }
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Brand</mat-label>
+                    <input matInput formControlName="brand" placeholder="Brand">
+                    @if (productform.get('brand')?.hasError('required')) {
+                        <mat-error>Brand is required</mat-error>
+                    }
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Price</mat-label>
+                    <input type="number" matInput formControlName="price" placeholder="Price in SR" />
+                    @if (productform.get('price')?.hasError('required')) {
+                        <mat-error>Price is required</mat-error>
+                    }
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Quantity</mat-label>
+                    <input matInput type="number" formControlName="quantityInStock" min="0">
+                    @if (productform.get('quantityInStock')?.hasError('required')) {
+                        <mat-error>Quantity is required</mat-error>
+                    }
+                </mat-form-field>
+            </div>
+
+            <div (click)="fileInput.click()"
+                class="flex flex-col items-center justify-center p-6 my-2 border border-gray-400 border-dashed rounded-md hover:border-blue-500 cursor-pointer transition-colors bg-gray-50">
+                <mat-icon class="text-gray-400 text-4xl h-10 w-10 mb-2">add_photo_alternate</mat-icon>
+                <mat-label class="text-sm font-semibold text-gray-700">Click to upload product picture</mat-label>
+                <span class="text-xs text-gray-500 mt-1" id="file-name-zone">PNG, JPG up to 5MB</span>
+                <input type="file" #fileInput class="hidden" (change)="onFileSelected($event)" accept="image/*" >
+            </div>
+
+        </div>
+        
+        <div class="flex justify-center items-center mt-4">
+            <button type="submit" mat-stroked-button [disabled]="!productform.valid && productform.touched">Submit</button>
+        </div>
+    </form>
+
+</div>

@@ -17,6 +17,7 @@ export class AccountService {
   signalrService = inject(SignalRService);
 
   currentUser = signal<User | null>(null);
+  userRoles = signal<string[] | null>(null);
 
   login(values: any) {
     let params = new HttpParams();
@@ -35,6 +36,14 @@ export class AccountService {
     return this.http.get<User>(this.baseURL + '/account/user-info').pipe(
       map((value: User) => {
         this.currentUser.set(value);
+        return value;
+      }),
+    );
+  }
+  getUserRoles() {
+    return this.http.get<string[] | null>(this.baseURL + '/account/GetUserRoles').pipe(
+      map((value) => {
+        this.userRoles.set(value);
         return value;
       }),
     );

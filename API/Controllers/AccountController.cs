@@ -45,6 +45,8 @@ public class AccountController(IAccountService accountService, SignInManager<App
     [HttpGet("[action]")]
     public ActionResult<bool> AuthStatus() => User.Identity?.IsAuthenticated ?? false;
 
+    [HttpGet("[action]")]
+    public async Task<ActionResult<List<string>>> GetUserRoles() => Ok(await _accountService.GetUserRolesAsync(User.GetUserEmail()));
 
     [Authorize]
     [HttpPost("address")]

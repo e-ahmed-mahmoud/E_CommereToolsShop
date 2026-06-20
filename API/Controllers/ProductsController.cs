@@ -1,16 +1,19 @@
+using API.Helpers;
 using Core.Common.Result;
 using Core.DTOs.Product;
 using Core.Entities;
 using Core.Errors;
 using Core.Interfaces;
 using Core.Specifications;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-public class ProductsController(IUnitOfWork unitOfWork) : BaseApiController
+public class ProductsController(IUnitOfWork unitOfWork, IFileServices fileServices) : BaseApiController
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IFileServices _fileServices = fileServices;
 
     [HttpGet]
     public async Task<ActionResult<Result>> Get([FromQuery] ProductSpecParams specParams, CancellationToken cancellationToken)
@@ -32,8 +35,17 @@ public class ProductsController(IUnitOfWork unitOfWork) : BaseApiController
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddProduct([FromBody] Product product)
+    public async Task<IActionResult> AddProduct([FromForm] Helpers.ProductCreateRequest productCreateRequest, CancellationToken cancellationToken)
     {
+
+        var fileSaved = await _fileServices.SaveFileAsync(productCreateRequest.File, cancellationToken);
+        if (!fileSaved.Item1)
+        {
+            return BadRequest();
+        }
+
+        var product = productCreateRequest.Adapt<Product>();
+        product.PictureUrl = fileSaved.Item2;
         _unitOfWork.Repository<Product>().Add(product);
 
         return await _unitOfWork.SaveChangesAsync() ?

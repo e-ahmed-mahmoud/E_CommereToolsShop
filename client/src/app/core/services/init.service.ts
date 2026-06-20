@@ -25,6 +25,7 @@ export class InitService {
       tap((res) => {
         if (res) {
           this.signalrService.createHubConnection();
+          this.accountService.getUserRoles().subscribe();
         }
       }),
     );

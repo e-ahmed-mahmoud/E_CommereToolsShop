@@ -29,6 +29,11 @@ export const routes: Routes = [
     canActivate: [authGuard, orderCompleteGuard],
   },
   {
+    path: 'addProduct',
+    loadComponent: () => import('./features/product-form/product-form').then((c) => c.ProductForm),
+    canActivate: [authGuard],
+  },
+  {
     path: 'orders',
     loadComponent: () => import('./features/order/order').then((c) => c.Order),
     canActivate: [authGuard],

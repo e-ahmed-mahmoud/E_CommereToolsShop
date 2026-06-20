@@ -10,5 +10,5 @@ public interface IAccountService
     Task<Result<UserInfoResponse>> GetUserInfo(string email);
 
     Task<Result<AddressDto>> CreateOrUpdateAddress(string email, AddressDto address);
-
+    Task<List<string>> GetUserRolesAsync(string email);
 }
